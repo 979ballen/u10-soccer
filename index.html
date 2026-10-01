@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>U10 7v7 Interactive Tactical Board</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -40,13 +40,10 @@
             font-family: 'Outfit', sans-serif;
             user-select: none;
             -webkit-user-select: none;
-            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
         }
         .canvas-container {
             position: relative;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-            /* Important for mobile: prevent native touch actions while drawing/dragging */
-            touch-action: none; 
         }
         ::-webkit-scrollbar {
             width: 6px;
@@ -75,20 +72,21 @@
             </div>
             <div>
                 <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-200 to-amber-300 bg-clip-text text-transparent">
-                    U10 Tactical Playbook <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30 hidden sm:inline-block">7v7 Mode</span>
+                    U10 Tactical Playbook <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">7v7 Mode</span>
                 </h1>
-                <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Interactive Coaching & Movement Animator</p>
+                <p class="text-xs text-slate-400 font-medium">Interactive Coaching & Movement Animator</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
+        <!-- Mode & Customization Buttons -->
+        <div class="flex items-center gap-2 flex-wrap">
             <button id="btnPlayerNames" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 border border-slate-700 transition">
-                <i class="fa-solid fa-users-gear text-blue-400"></i> <span class="hidden sm:inline">Edit Roster</span>
+                <i class="fa-solid fa-users-gear text-blue-400"></i> Edit Blue Roster
             </button>
             
             <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center gap-1">
                 <button id="modeAnimateBtn" class="px-3 py-1 rounded-md text-xs font-bold transition bg-blue-600 text-white shadow-md">
-                    <i class="fa-solid fa-play text-xs mr-1"></i> Play
+                    <i class="fa-solid fa-play text-xs mr-1"></i> Play Tactics
                 </button>
                 <button id="modeFreehandBtn" class="px-3 py-1 rounded-md text-xs font-bold transition text-slate-400 hover:text-white">
                     <i class="fa-solid fa-hand-pointer text-xs mr-1"></i> Free Board
@@ -99,59 +97,66 @@
 
     <main class="flex-1 p-3 md:p-5 max-w-7xl mx-auto w-full flex flex-col gap-4">
 
+        <!-- Play Selection & Flank Direction Header Card -->
         <div class="glass-panel p-4 rounded-2xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
             
-            <div class="flex items-center gap-3 flex-1">
-                <div class="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20 text-blue-400 hidden sm:block">
+            <!-- Play Selection Dropdown -->
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-blue-500/10 rounded-xl border border-blue-500/20 text-blue-400">
                     <i class="fa-solid fa-clipboard-list text-xl"></i>
                 </div>
-                <div class="w-full">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Select Tactical Play</label>
-                    <select id="playSelect" class="w-full bg-slate-800 text-slate-100 font-bold text-sm md:text-base rounded-lg border border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Select Tactical Play</label>
+                    <select id="playSelect" class="bg-slate-800 text-slate-100 font-bold text-sm md:text-base rounded-lg border border-slate-700 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="goal_kick">Goal Kick Build-Out & Central Attack</option>
                         <option value="throw_in_defensive">Defensive Throw-In (Break High Press)</option>
                         <option value="throw_in_midfield">Midfield Throw-In (Target & Release)</option>
+                        <option value="throw_in_attacking">Attacking Third Throw-In (Lay-Off & Shot)</option>
+                        <option value="corner_kick">Attacking Corner Kick (Dual Rest Defense)</option>
                     </select>
                 </div>
             </div>
 
-            <div class="flex items-center justify-center bg-slate-950 p-1.5 rounded-xl border border-slate-800 gap-1 w-full lg:w-auto">
-                <span class="text-[10px] sm:text-xs font-bold text-slate-400 px-1 sm:px-2">Flank:</span>
-                <button id="flankRightBtn" class="flex-1 lg:flex-none px-3 py-2 rounded-lg text-xs font-extrabold transition flex items-center justify-center gap-1.5 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
-                    <i class="fa-solid fa-arrow-down-right-dots"></i> Right
+            <!-- Direction Toggle Switches -->
+            <div class="flex items-center justify-center bg-slate-950 p-1.5 rounded-xl border border-slate-800 gap-2">
+                <span class="text-xs font-bold text-slate-400 px-2">Flank Side:</span>
+                <button id="flankRightBtn" class="px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+                    <i class="fa-solid fa-arrow-down-right-dots"></i> Right Flank
                 </button>
-                <button id="flankLeftBtn" class="flex-1 lg:flex-none px-3 py-2 rounded-lg text-xs font-extrabold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800">
-                    <i class="fa-solid fa-arrow-up-right-dots"></i> Left
+                <button id="flankLeftBtn" class="px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-arrow-up-right-dots"></i> Left Flank
                 </button>
             </div>
 
-            <!-- Enhanced mobile touch targets for tools -->
-            <div class="flex items-center justify-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 w-full lg:w-auto">
-                <button id="toolSelect" class="w-10 h-10 rounded-lg flex items-center justify-center text-sm text-white bg-blue-600 shadow" title="Select / Drag">
+            <!-- Whiteboard Drawing Tools -->
+            <div class="flex items-center justify-center gap-1.5 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
+                <button id="toolSelect" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-white bg-blue-600 shadow" title="Select / Drag">
                     <i class="fa-solid fa-arrow-pointer"></i>
                 </button>
-                <button id="toolPen" class="w-10 h-10 rounded-lg flex items-center justify-center text-sm text-slate-400 hover:text-white hover:bg-slate-800" title="Free Pen Draw">
+                <button id="toolPen" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-slate-400 hover:text-white hover:bg-slate-800" title="Free Pen Draw">
                     <i class="fa-solid fa-pen-nib"></i>
                 </button>
-                <button id="toolArrow" class="w-10 h-10 rounded-lg flex items-center justify-center text-sm text-slate-400 hover:text-white hover:bg-slate-800" title="Pass / Movement Arrow">
+                <button id="toolArrow" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs text-slate-400 hover:text-white hover:bg-slate-800" title="Pass / Movement Arrow">
                     <i class="fa-solid fa-long-arrow-right"></i>
                 </button>
-                <div class="w-px h-6 bg-slate-800 mx-1"></div>
-                <button id="btnClearBoard" class="px-3 py-2 rounded-lg text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center gap-1" title="Clear Canvas Drawings">
-                    <i class="fa-solid fa-trash-can"></i> <span class="hidden sm:inline">Clear</span>
+                <div class="w-px h-5 bg-slate-800 mx-1"></div>
+                <button id="btnClearBoard" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 flex items-center gap-1" title="Clear Canvas Drawings">
+                    <i class="fa-solid fa-trash-can"></i> Clear
                 </button>
             </div>
         </div>
 
-        <div class="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] bg-emerald-950 rounded-2xl overflow-hidden canvas-container border-2 border-slate-800">
-            <canvas id="tacticalCanvas" class="w-full h-full block cursor-crosshair touch-none"></canvas>
+        <div class="relative w-full aspect-[16/10] sm:aspect-[16/9.5] md:aspect-[16/9] bg-emerald-950 rounded-2xl overflow-hidden canvas-container border-2 border-slate-800">
+            <!-- Canvas Canvas Layer -->
+            <canvas id="tacticalCanvas" class="w-full h-full block cursor-crosshair"></canvas>
 
+            <!-- Goal Celebration Banner Overlay -->
             <div id="goalBanner" class="absolute inset-0 bg-slate-950/75 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none opacity-0 transition-all duration-500 scale-90 z-20">
                 <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 p-1 rounded-3xl shadow-2xl animate-bounce">
-                    <div class="bg-slate-950 px-6 py-4 md:px-8 md:py-6 rounded-[22px] text-center border border-amber-400/30">
-                        <div class="text-4xl md:text-6xl mb-2">⚽ GOAL! 🎉</div>
-                        <h2 class="text-xl md:text-3xl font-black text-amber-400 uppercase tracking-widest">Awesome Teamwork!</h2>
-                        <p id="goalSubtitleText" class="text-[10px] md:text-sm text-slate-300 font-semibold mt-1">Tactical Combination Executed Perfectly!</p>
+                    <div class="bg-slate-950 px-8 py-6 rounded-[22px] text-center border border-amber-400/30">
+                        <div class="text-5xl md:text-6xl mb-2">⚽ GOAL! 🎉</div>
+                        <h2 class="text-2xl md:text-3xl font-black text-amber-400 uppercase tracking-widest">Awesome Teamwork!</h2>
+                        <p id="goalSubtitleText" class="text-xs md:text-sm text-slate-300 font-semibold mt-1">Tactical Combination Executed Perfectly!</p>
                     </div>
                 </div>
             </div>
@@ -163,7 +168,7 @@
                     <span id="phaseBadge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30">
                         Phase 1: Setup & Movement
                     </span>
-                    <span id="phaseStepText" class="text-[11px] font-extrabold text-slate-400">Step 1 of 5</span>
+                    <span id="phaseStepText" class="text-[11px] font-extrabold text-slate-400">Step 1 of 3</span>
                 </div>
                 <h3 id="phaseTitle" class="text-sm md:text-base font-extrabold text-white leading-snug">Initiating Tactical Movement</h3>
                 <p id="phaseDesc" class="text-xs text-slate-300 mt-1 leading-relaxed">
@@ -174,64 +179,52 @@
 
         <div class="glass-panel p-4 rounded-2xl flex flex-col gap-3">
             
+            <!-- Scrubber Slider & Timeline Phase Buttons -->
             <div class="flex flex-col gap-1.5">
                 <div class="flex items-center justify-between text-xs font-bold text-slate-400">
                     <span>Play Progress Timeline</span>
-                    <span id="currentTimeDisplay" class="text-blue-400 font-mono">00:00 / 00:09</span>
+                    <span id="currentTimeDisplay" class="text-blue-400 font-mono">00:00 / 00:08.5</span>
                 </div>
                 
-                <div class="relative w-full flex items-center my-2">
+                <div class="relative w-full flex items-center my-1">
                     <input id="timelineSlider" type="range" min="0" max="100" value="0" step="0.1" 
-                           class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500 focus:outline-none">
+                           class="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500 focus:outline-none">
                 </div>
 
-                <!-- Responsive Grid for Phases (Mobile friendly) -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mt-1" id="phaseButtonsContainer">
-                    <button class="phase-node-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 text-center transition border border-slate-700" data-phase="1">
-                        1. Decoy Run
-                    </button>
-                    <button class="phase-node-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 text-center transition border border-slate-700" data-phase="2">
-                        2. Throw & Set
-                    </button>
-                    <button class="phase-node-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 text-center transition border border-slate-700" data-phase="3">
-                        3. Central Release
-                    </button>
-                    <button class="phase-node-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 text-center transition border border-slate-700" data-phase="4">
-                        4. Wing Sprint
-                    </button>
-                    <button class="phase-node-btn px-2 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 text-center transition border border-slate-700 col-span-2 sm:col-span-1" data-phase="5">
-                        5. Finish
-                    </button>
+                <!-- Step Phase Buttons -->
+                <div class="grid grid-cols-5 gap-1.5 mt-1" id="phaseButtonsContainer">
+                    <!-- Dynamically filled -->
                 </div>
             </div>
 
-            <div class="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-slate-800">
-                <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
-                    <button id="btnReset" class="w-12 h-12 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition border border-slate-700 shadow" title="Reset Play">
+            <!-- Controller Buttons -->
+            <div class="flex items-center justify-between flex-wrap gap-3 pt-2 border-t border-slate-800">
+                <div class="flex items-center gap-2">
+                    <button id="btnReset" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition border border-slate-700" title="Reset Play">
                         <i class="fa-solid fa-rotate-left"></i>
                     </button>
                     
-                    <button id="btnPlayPause" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm flex items-center gap-2 transition shadow-lg shadow-blue-600/40">
+                    <button id="btnPlayPause" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm flex items-center gap-2 transition shadow-lg shadow-blue-600/40">
                         <i id="playIcon" class="fa-solid fa-play"></i> <span id="playBtnText">Start Play</span>
                     </button>
 
-                    <button id="btnNextPhase" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 border border-slate-700 hidden sm:flex">
+                    <button id="btnNextPhase" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 border border-slate-700">
                         Next Step <i class="fa-solid fa-forward"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center justify-center gap-2 w-full sm:w-auto">
-                    <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800 text-xs font-bold flex-1 justify-center">
-                        <span class="text-slate-400 pl-1 hidden sm:inline">Speed:</span>
-                        <button class="speed-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white" data-speed="0.5">0.5x</button>
-                        <button class="speed-btn px-3 py-1.5 rounded-lg bg-blue-600 text-white shadow" data-speed="1">1.0x</button>
-                        <button class="speed-btn px-3 py-1.5 rounded-lg text-slate-400 hover:text-white" data-speed="1.5">1.5x</button>
-                    </div>
-
-                    <button id="btnSoundToggle" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-2 border border-slate-700">
-                        <i id="soundIcon" class="fa-solid fa-volume-high text-blue-400"></i> <span class="hidden sm:inline">Sound</span>
-                    </button>
+                <!-- Speed Control Selector -->
+                <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+                    <span class="text-slate-400 pl-2">Speed:</span>
+                    <button class="speed-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white" data-speed="0.5">0.5x</button>
+                    <button class="speed-btn px-2.5 py-1 rounded-lg bg-blue-600 text-white shadow" data-speed="1">1.0x</button>
+                    <button class="speed-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white" data-speed="1.5">1.5x</button>
                 </div>
+
+                <!-- Audio Toggle Button -->
+                <button id="btnSoundToggle" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold flex items-center gap-2 border border-slate-700">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-blue-400"></i> Sound FX
+                </button>
             </div>
         </div>
     </main>
@@ -243,26 +236,27 @@
                     <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center">
                         <i class="fa-solid fa-user-pen"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-white">Customize Blue Team</h3>
+                    <h3 class="text-lg font-bold text-white">Customize Blue Team Player Names</h3>
                 </div>
                 <button id="btnCloseModal" class="text-slate-400 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-800">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
+            <!-- Blue Team Roster Input Grid -->
             <div class="overflow-y-auto flex-1 pr-2 space-y-4">
                 <div>
                     <h4 class="text-xs font-extrabold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Blue Team (Your Squad - 7v7)
                     </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="blueRosterInputs">
-                        <!-- Dynamically populated via JS -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="blueRosterInputs">
+                        <!-- Dynamically populated -->
                     </div>
                 </div>
             </div>
 
             <div class="pt-4 border-t border-slate-800 mt-4 flex items-center justify-end gap-3">
-                <button id="btnSaveRoster" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30">
+                <button id="btnSaveRoster" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30">
                     Save Roster
                 </button>
             </div>
@@ -336,16 +330,34 @@
             },
             freehandPositions: {
                 ball: { x: 50, y: 50 },
-                blue: { GK: { x: 8, y: 50 }, RD: { x: 25, y: 80 }, LD: { x: 25, y: 20 }, RM: { x: 45, y: 85 }, CM: { x: 35, y: 50 }, LM: { x: 45, y: 15 }, S:  { x: 55, y: 50 } },
-                red: { GK: { x: 92, y: 50 }, RD: { x: 75, y: 35 }, LD: { x: 75, y: 65 }, RM: { x: 55, y: 20 }, CM: { x: 50, y: 50 }, LM: { x: 55, y: 80 }, S:  { x: 40, y: 50 } }
+                blue: {
+                    GK: { x: 8, y: 50 },
+                    RD: { x: 25, y: 80 },
+                    LD: { x: 25, y: 20 },
+                    RM: { x: 45, y: 85 },
+                    CM: { x: 35, y: 50 },
+                    LM: { x: 45, y: 15 },
+                    S:  { x: 55, y: 50 }
+                },
+                red: {
+                    GK: { x: 92, y: 50 },
+                    RD: { x: 75, y: 35 },
+                    LD: { x: 75, y: 65 },
+                    RM: { x: 55, y: 20 },
+                    CM: { x: 50, y: 50 },
+                    LM: { x: 55, y: 80 },
+                    S:  { x: 40, y: 50 }
+                }
             }
         };
 
-        // Phase Metadata
+        // Phase Metadata Information
         const playMetadata = {
             goal_kick: {
                 title: "Goal Kick Build-Out & Central Attack",
-                steps: ["1. Short Pass", "2. Shift & Pinch", "3. Touchline Pass", "4. Central Combo", "5. Onside Finish"],
+                steps: [
+                    "1. Short Pass", "2. Shift & Pinch", "3. Touchline Pass", "4. Central Combo", "5. Onside Finish"
+                ],
                 descriptions: [
                     { title: "Phase 1: Initiating Short Build-Out", desc: "GK plays a controlled short pass to the wide defender in stride. Wide players hug the touchline!" },
                     { title: "Phase 2: Weak-Side Shift & Support", desc: "As ball moves wide, opposite side defender and winger pinch inward to cover the central Danger Zone." },
@@ -356,7 +368,9 @@
             },
             throw_in_defensive: {
                 title: "Defensive Third Throw-In (Break High Press)",
-                steps: ["1. Decoy Runs", "2. Throw & Set", "3. Central Release", "4. Wing Sprint", "5. Onside Shot"],
+                steps: [
+                    "1. Decoy Runs", "2. Throw & Set", "3. Central Release", "4. Wing Sprint", "5. Onside Shot"
+                ],
                 descriptions: [
                     { title: "Phase 1: Movement & Decoy Runs", desc: "Winger makes a fast explosive sprint down the touchline, then sharply checks back to RD/LD to create space. CM checks into channel." },
                     { title: "Phase 2: Throw & One-Touch Set-Back", desc: "RD/LD throws down the line into feet of wide midfielder, who shields off Red presser and plays a 1-touch set-back pass to CM." },
@@ -367,13 +381,37 @@
             },
             throw_in_midfield: {
                 title: "Midfield Third Throw-In (Target & Release)",
-                steps: ["1. Decoy & Rotation", "2. Target Set-Back", "3. Line-Breaker", "4. Box Cross", "5. Onside Finish"],
+                steps: [
+                    "1. Decoy & Rotation", "2. Target Set-Back", "3. Line-Breaker", "4. Box Cross", "5. Onside Finish"
+                ],
                 descriptions: [
                     { title: "Phase 1: Rotational Movement & Decoy Runs", desc: "S makes a hard decoy run to touchline pulling defender out. CM rotates into vacant central space!" },
                     { title: "Phase 2: Throw into Target & Overlap Sprint", desc: "Throw to S who pins defender and sets 1-touch pass to CM. Thrower immediately overlap-sprints down the wing!" },
                     { title: "Phase 3: Central Release & Wing Penetration", desc: "CM receives facing forward and plays 1st-time through-ball into stride for overlapping winger." },
                     { title: "Phase 4: Attack the Box & Cover Shifts", desc: "Winger drives down flank to cross. S spins off defender to central box while far-side winger attacks back post." },
                     { title: "Phase 5: Box Finish & Goal", desc: "Cross delivered into box, finished past Red goalkeeper! GOAL!" }
+                ]
+            },
+            throw_in_attacking: {
+                title: "Attacking Third Throw-In (Lay-Off & Shot)",
+                steps: [
+                    "1. Decoy Run", "2. Throw & Lay-Off", "3. Shot & Follow-Up"
+                ],
+                descriptions: [
+                    { title: "Phase 1: Decoy Run into the Box", desc: "S sprints hard into box toward baseline pulling Red defender deep, then checks back to thrower. RD & LD shift behind midfield to screen Red S." },
+                    { title: "Phase 2: Throw & One-Touch Lay-Off", desc: "RM/LM throws to S at edge of box. S shields off defender and plays a 1-touch lay-off to top of key. CM makes timed run to meet it!" },
+                    { title: "Phase 3: First-Time Shot & Crash Rebound", desc: "CM strikes 1st-time shot on goal. S spins off defender to crash for rebounds, opposite winger attacks back post, rest defense holds line!" }
+                ]
+            },
+            corner_kick: {
+                title: "Attacking Corner Kick (Dual Rest Defense)",
+                steps: [
+                    "1. Decoy & Near Run", "2. Driven In-Swinger", "3. Back-Post Finish"
+                ],
+                descriptions: [
+                    { title: "Phase 1: Decoy & Near-Post Attack", desc: "S uses a double-move before making an explosive run into the near-post 6-yard zone. CM holds central. Both RD & LD stay anchored behind top of center circle." },
+                    { title: "Phase 2: Driven In-Swinger & Offside Safety", desc: "In-swinger delivered from corner. S leaps to flick ball across goal. Far-side winger holds run level with last defender to stay onside before crashing back post." },
+                    { title: "Phase 3: Back-Post Finish & Rest Defense Lock", desc: "Ball reaches back post for a fast onside finish! RD and LD lock down the top of the center circle barrier to stop counter-attacks." }
                 ]
             }
         };
@@ -421,492 +459,507 @@
             },
             throw_in_midfield: {
                 right: [
-                    { time: 0, phase: 1, ball: { x: 50, y: 96 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 50, y: 96 }, RM: { x: 65, y: 85 }, CM: { x: 45, y: 50 }, S: { x: 70, y: 60 }, LD: { x: 30, y: 30 }, LM: { x: 55, y: 20 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 60, y: 85 }, CM: { x: 55, y: 55 }, S: { x: 40, y: 60 }, RM: { x: 45, y: 25 }, LD: { x: 75, y: 70 }, RD: { x: 75, y: 35 } } },
-                    { time: 1.5, phase: 1, ball: { x: 50, y: 96 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 50, y: 96 }, RM: { x: 65, y: 85 }, CM: { x: 60, y: 65 }, S: { x: 55, y: 85 }, LD: { x: 30, y: 30 }, LM: { x: 55, y: 20 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 58, y: 85 }, CM: { x: 55, y: 55 }, S: { x: 40, y: 60 }, RM: { x: 45, y: 25 }, LD: { x: 65, y: 80 }, RD: { x: 75, y: 35 } } },
-                    { time: 2.5, phase: 2, ball: { x: 55, y: 85 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 55, y: 96 }, RM: { x: 70, y: 85 }, CM: { x: 60, y: 65 }, S: { x: 55, y: 85 }, LD: { x: 30, y: 30 }, LM: { x: 60, y: 20 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 58, y: 85 }, CM: { x: 58, y: 60 }, S: { x: 40, y: 60 }, RM: { x: 45, y: 25 }, LD: { x: 65, y: 80 }, RD: { x: 75, y: 35 } } },
-                    { time: 3.5, phase: 2, ball: { x: 60, y: 65 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 65, y: 95 }, RM: { x: 75, y: 80 }, CM: { x: 60, y: 65 }, S: { x: 60, y: 75 }, LD: { x: 35, y: 35 }, LM: { x: 65, y: 25 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 60, y: 80 }, CM: { x: 62, y: 60 }, S: { x: 40, y: 60 }, RM: { x: 45, y: 25 }, LD: { x: 68, y: 75 }, RD: { x: 75, y: 35 } } },
-                    { time: 5.0, phase: 3, ball: { x: 80, y: 85 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 80, y: 88 }, RM: { x: 80, y: 65 }, CM: { x: 65, y: 60 }, S: { x: 70, y: 65 }, LD: { x: 40, y: 40 }, LM: { x: 75, y: 30 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 70, y: 80 }, CM: { x: 65, y: 55 }, S: { x: 45, y: 60 }, RM: { x: 50, y: 30 }, LD: { x: 72, y: 70 }, RD: { x: 75, y: 35 } } },
-                    { time: 6.5, phase: 4, ball: { x: 85, y: 55 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 85, y: 85 }, RM: { x: 85, y: 55 }, CM: { x: 70, y: 60 }, S: { x: 80, y: 55 }, LD: { x: 45, y: 45 }, LM: { x: 82, y: 35 } }, red: { GK: { x: 90, y: 50 }, LM: { x: 75, y: 75 }, CM: { x: 70, y: 55 }, S: { x: 50, y: 60 }, RM: { x: 55, y: 35 }, LD: { x: 78, y: 65 }, RD: { x: 78, y: 40 } } },
-                    { time: 8.5, phase: 5, ball: { x: 96, y: 48 }, blue: { GK: { x: 15, y: 50 }, RD: { x: 85, y: 85 }, RM: { x: 90, y: 50 }, CM: { x: 75, y: 60 }, S: { x: 88, y: 45 }, LD: { x: 50, y: 50 }, LM: { x: 85, y: 40 } }, red: { GK: { x: 86, y: 50 }, LM: { x: 80, y: 70 }, CM: { x: 75, y: 50 }, S: { x: 55, y: 60 }, RM: { x: 60, y: 40 }, LD: { x: 82, y: 60 }, RD: { x: 80, y: 45 } } }
+                    { time: 0, phase: 1, ball: { x: 50, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 35, y: 85 }, RM: { x: 50, y: 96 }, CM: { x: 42, y: 50 }, S: { x: 62, y: 70 }, LD: { x: 35, y: 25 }, LM: { x: 48, y: 20 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 48, y: 88 }, CM: { x: 44, y: 52 }, S: { x: 30, y: 55 }, RM: { x: 45, y: 35 }, LD: { x: 64, y: 68 }, RD: { x: 68, y: 30 } } },
+                    { time: 1.2, phase: 1, ball: { x: 50, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 38, y: 82 }, RM: { x: 50, y: 96 }, CM: { x: 52, y: 62 }, S: { x: 52, y: 88 }, LD: { x: 36, y: 28 }, LM: { x: 50, y: 22 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 48, y: 88 }, CM: { x: 48, y: 56 }, S: { x: 32, y: 55 }, RM: { x: 46, y: 36 }, LD: { x: 54, y: 85 }, RD: { x: 68, y: 30 } } },
+                    { time: 2.4, phase: 2, ball: { x: 52, y: 88 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 38, y: 82 }, RM: { x: 52, y: 92 }, CM: { x: 52, y: 62 }, S: { x: 52, y: 88 }, LD: { x: 36, y: 28 }, LM: { x: 52, y: 22 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 50, y: 88 }, CM: { x: 48, y: 58 }, S: { x: 32, y: 55 }, RM: { x: 46, y: 36 }, LD: { x: 54, y: 85 }, RD: { x: 68, y: 30 } } },
+                    { time: 3.6, phase: 2, ball: { x: 52, y: 62 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 40, y: 80 }, RM: { x: 62, y: 90 }, CM: { x: 52, y: 62 }, S: { x: 54, y: 84 }, LD: { x: 38, y: 30 }, LM: { x: 55, y: 22 } }, red: { GK: { x: 94, y: 50 }, LM: { x: 52, y: 85 }, CM: { x: 50, y: 60 }, S: { x: 34, y: 55 }, RM: { x: 48, y: 38 }, LD: { x: 56, y: 82 }, RD: { x: 68, y: 30 } } },
+                    { time: 5.0, phase: 3, ball: { x: 75, y: 88 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 78 }, RM: { x: 75, y: 88 }, CM: { x: 58, y: 60 }, S: { x: 75, y: 55 }, LD: { x: 40, y: 32 }, LM: { x: 68, y: 22 } }, red: { GK: { x: 92, y: 50 }, LM: { x: 58, y: 82 }, CM: { x: 58, y: 68 }, S: { x: 36, y: 55 }, RM: { x: 50, y: 40 }, LD: { x: 62, y: 78 }, RD: { x: 78, y: 45 } } },
+                    { time: 6.5, phase: 4, ball: { x: 86, y: 52 }, blue: { GK: { x: 10, y: 50 }, RD: { x: 45, y: 75 }, RM: { x: 82, y: 82 }, CM: { x: 68, y: 58 }, S: { x: 86, y: 52 }, LD: { x: 42, y: 35 }, LM: { x: 82, y: 28 } }, red: { GK: { x: 88, y: 50 }, LM: { x: 65, y: 78 }, CM: { x: 64, y: 62 }, S: { x: 42, y: 55 }, RM: { x: 54, y: 42 }, LD: { x: 76, y: 68 }, RD: { x: 82, y: 48 } } },
+                    { time: 8.5, phase: 5, ball: { x: 96, y: 48 }, blue: { GK: { x: 10, y: 50 }, RD: { x: 48, y: 72 }, RM: { x: 85, y: 78 }, CM: { x: 72, y: 55 }, S: { x: 90, y: 50 }, LD: { x: 45, y: 35 }, LM: { x: 85, y: 25 } }, red: { GK: { x: 86, y: 50 }, LM: { x: 68, y: 75 }, CM: { x: 68, y: 60 }, S: { x: 45, y: 55 }, RM: { x: 56, y: 42 }, LD: { x: 84, y: 50 } } }
                 ],
                 left: [
-                    { time: 0, phase: 1, ball: { x: 50, y: 4 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 50, y: 4 }, LM: { x: 65, y: 15 }, CM: { x: 45, y: 50 }, S: { x: 70, y: 40 }, RD: { x: 30, y: 70 }, RM: { x: 55, y: 80 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 60, y: 15 }, CM: { x: 55, y: 45 }, S: { x: 40, y: 40 }, LM: { x: 45, y: 75 }, RD: { x: 75, y: 30 }, LD: { x: 75, y: 65 } } },
-                    { time: 1.5, phase: 1, ball: { x: 50, y: 4 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 50, y: 4 }, LM: { x: 65, y: 15 }, CM: { x: 60, y: 35 }, S: { x: 55, y: 15 }, RD: { x: 30, y: 70 }, RM: { x: 55, y: 80 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 58, y: 15 }, CM: { x: 55, y: 45 }, S: { x: 40, y: 40 }, LM: { x: 45, y: 75 }, RD: { x: 65, y: 20 }, LD: { x: 75, y: 65 } } },
-                    { time: 2.5, phase: 2, ball: { x: 55, y: 15 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 55, y: 4 }, LM: { x: 70, y: 15 }, CM: { x: 60, y: 35 }, S: { x: 55, y: 15 }, RD: { x: 30, y: 70 }, RM: { x: 60, y: 80 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 58, y: 15 }, CM: { x: 58, y: 40 }, S: { x: 40, y: 40 }, LM: { x: 45, y: 75 }, RD: { x: 65, y: 20 }, LD: { x: 75, y: 65 } } },
-                    { time: 3.5, phase: 2, ball: { x: 60, y: 35 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 65, y: 5 }, LM: { x: 75, y: 20 }, CM: { x: 60, y: 35 }, S: { x: 60, y: 25 }, RD: { x: 35, y: 65 }, RM: { x: 65, y: 75 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 60, y: 20 }, CM: { x: 62, y: 40 }, S: { x: 40, y: 40 }, LM: { x: 45, y: 75 }, RD: { x: 68, y: 25 }, LD: { x: 75, y: 65 } } },
-                    { time: 5.0, phase: 3, ball: { x: 80, y: 15 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 80, y: 12 }, LM: { x: 80, y: 35 }, CM: { x: 65, y: 40 }, S: { x: 70, y: 35 }, RD: { x: 40, y: 60 }, RM: { x: 75, y: 70 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 70, y: 20 }, CM: { x: 65, y: 45 }, S: { x: 45, y: 40 }, LM: { x: 50, y: 70 }, RD: { x: 72, y: 30 }, LD: { x: 75, y: 65 } } },
-                    { time: 6.5, phase: 4, ball: { x: 85, y: 45 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 85, y: 15 }, LM: { x: 85, y: 45 }, CM: { x: 70, y: 40 }, S: { x: 80, y: 45 }, RD: { x: 45, y: 55 }, RM: { x: 82, y: 65 } }, red: { GK: { x: 90, y: 50 }, RM: { x: 75, y: 25 }, CM: { x: 70, y: 45 }, S: { x: 50, y: 40 }, LM: { x: 55, y: 65 }, RD: { x: 78, y: 35 }, LD: { x: 78, y: 60 } } },
-                    { time: 8.5, phase: 5, ball: { x: 96, y: 48 }, blue: { GK: { x: 15, y: 50 }, LD: { x: 85, y: 15 }, LM: { x: 90, y: 50 }, CM: { x: 75, y: 40 }, S: { x: 88, y: 55 }, RD: { x: 50, y: 50 }, RM: { x: 85, y: 60 } }, red: { GK: { x: 86, y: 50 }, RM: { x: 80, y: 30 }, CM: { x: 75, y: 50 }, S: { x: 55, y: 40 }, LM: { x: 60, y: 60 }, RD: { x: 82, y: 40 }, LD: { x: 80, y: 55 } } }
+                    { time: 0, phase: 1, ball: { x: 50, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 35, y: 15 }, LM: { x: 50, y: 4 }, CM: { x: 42, y: 50 }, S: { x: 62, y: 30 }, RD: { x: 35, y: 75 }, RM: { x: 48, y: 80 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 48, y: 12 }, CM: { x: 44, y: 48 }, S: { x: 30, y: 45 }, LM: { x: 45, y: 65 }, RD: { x: 64, y: 32 }, LD: { x: 68, y: 70 } } },
+                    { time: 1.2, phase: 1, ball: { x: 50, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 38, y: 18 }, LM: { x: 50, y: 4 }, CM: { x: 52, y: 38 }, S: { x: 52, y: 12 }, RD: { x: 36, y: 72 }, RM: { x: 50, y: 78 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 48, y: 12 }, CM: { x: 48, y: 44 }, S: { x: 32, y: 45 }, LM: { x: 46, y: 64 }, RD: { x: 54, y: 15 }, LD: { x: 68, y: 70 } } },
+                    { time: 2.4, phase: 2, ball: { x: 52, y: 12 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 38, y: 18 }, LM: { x: 52, y: 8 }, CM: { x: 52, y: 38 }, S: { x: 52, y: 12 }, RD: { x: 36, y: 72 }, RM: { x: 52, y: 78 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 50, y: 12 }, CM: { x: 48, y: 42 }, S: { x: 32, y: 45 }, LM: { x: 46, y: 64 }, RD: { x: 54, y: 15 }, LD: { x: 68, y: 70 } } },
+                    { time: 3.6, phase: 2, ball: { x: 52, y: 38 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 40, y: 20 }, LM: { x: 62, y: 10 }, CM: { x: 52, y: 38 }, S: { x: 54, y: 16 }, RD: { x: 38, y: 70 }, RM: { x: 55, y: 78 } }, red: { GK: { x: 94, y: 50 }, RM: { x: 52, y: 15 }, CM: { x: 50, y: 40 }, S: { x: 34, y: 45 }, LM: { x: 48, y: 62 }, RD: { x: 56, y: 18 }, LD: { x: 68, y: 70 } } },
+                    { time: 5.0, phase: 3, ball: { x: 75, y: 12 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 22 }, LM: { x: 75, y: 12 }, CM: { x: 58, y: 40 }, S: { x: 75, y: 45 }, RD: { x: 40, y: 68 }, RM: { x: 68, y: 78 } }, red: { GK: { x: 92, y: 50 }, RM: { x: 58, y: 18 }, CM: { x: 58, y: 32 }, S: { x: 36, y: 45 }, LM: { x: 50, y: 60 }, RD: { x: 62, y: 22 }, LD: { x: 78, y: 55 } } },
+                    { time: 6.5, phase: 4, ball: { x: 86, y: 48 }, blue: { GK: { x: 10, y: 50 }, LD: { x: 45, y: 25 }, LM: { x: 82, y: 18 }, CM: { x: 68, y: 42 }, S: { x: 86, y: 48 }, RD: { x: 42, y: 65 }, RM: { x: 82, y: 72 } }, red: { GK: { x: 88, y: 50 }, RM: { x: 65, y: 22 }, CM: { x: 64, y: 38 }, S: { x: 42, y: 45 }, LM: { x: 54, y: 58 }, RD: { x: 76, y: 32 }, LD: { x: 82, y: 52 } } },
+                    { time: 8.5, phase: 5, ball: { x: 96, y: 48 }, blue: { GK: { x: 10, y: 50 }, LD: { x: 48, y: 28 }, LM: { x: 85, y: 22 }, CM: { x: 72, y: 45 }, S: { x: 90, y: 50 }, RD: { x: 45, y: 65 }, RM: { x: 85, y: 75 } }, red: { GK: { x: 86, y: 50 }, RM: { x: 68, y: 25 }, CM: { x: 68, y: 40 }, S: { x: 45, y: 45 }, LM: { x: 56, y: 58 }, RD: { x: 82, y: 40 }, LD: { x: 84, y: 50 } } }
+                ]
+            },
+            throw_in_attacking: {
+                right: [
+                    { time: 0, phase: 1, ball: { x: 72, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 72, y: 96 }, S: { x: 75, y: 72 }, CM: { x: 62, y: 50 }, LM: { x: 68, y: 22 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 78, y: 70 }, CM: { x: 66, y: 52 }, LM: { x: 70, y: 88 }, RD: { x: 74, y: 30 }, S: { x: 50, y: 50 } } },
+                    { time: 1.8, phase: 1, ball: { x: 72, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 44, y: 55 }, LD: { x: 44, y: 45 }, RM: { x: 72, y: 96 }, S: { x: 76, y: 80 }, CM: { x: 60, y: 50 }, LM: { x: 70, y: 20 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 78, y: 78 }, CM: { x: 65, y: 52 }, LM: { x: 71, y: 90 }, RD: { x: 74, y: 28 }, S: { x: 50, y: 50 } } },
+                    { time: 3.2, phase: 2, ball: { x: 76, y: 80 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 44, y: 55 }, LD: { x: 44, y: 45 }, RM: { x: 72, y: 92 }, S: { x: 76, y: 80 }, CM: { x: 68, y: 50 }, LM: { x: 73, y: 25 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 78, y: 78 }, CM: { x: 67, y: 51 }, LM: { x: 71, y: 88 }, RD: { x: 74, y: 28 }, S: { x: 50, y: 50 } } },
+                    { time: 4.5, phase: 2, ball: { x: 68, y: 50 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 44, y: 55 }, LD: { x: 44, y: 45 }, RM: { x: 72, y: 85 }, S: { x: 76, y: 78 }, CM: { x: 68, y: 50 }, LM: { x: 82, y: 32 } }, red: { GK: { x: 93, y: 50 }, LD: { x: 78, y: 75 }, CM: { x: 71, y: 50 }, LM: { x: 71, y: 85 }, RD: { x: 74, y: 30 }, S: { x: 50, y: 50 } } },
+                    { time: 5.8, phase: 3, ball: { x: 88, y: 48 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 45, y: 55 }, LD: { x: 45, y: 45 }, RM: { x: 72, y: 82 }, S: { x: 82, y: 60 }, CM: { x: 70, y: 50 }, LM: { x: 86, y: 38 } }, red: { GK: { x: 91, y: 49 }, LD: { x: 80, y: 65 }, CM: { x: 71, y: 50 }, LM: { x: 71, y: 80 }, RD: { x: 76, y: 32 }, S: { x: 50, y: 50 } } },
+                    { time: 8.5, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 45, y: 55 }, LD: { x: 45, y: 45 }, RM: { x: 75, y: 80 }, S: { x: 90, y: 52 }, CM: { x: 72, y: 50 }, LM: { x: 88, y: 38 } }, red: { GK: { x: 86, y: 50 }, LD: { x: 84, y: 60 }, CM: { x: 71, y: 50 }, LM: { x: 71, y: 80 }, RD: { x: 78, y: 35 }, S: { x: 50, y: 50 } } }
+                ],
+                left: [
+                    { time: 0, phase: 1, ball: { x: 72, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 72, y: 4 }, S: { x: 75, y: 28 }, CM: { x: 62, y: 50 }, RM: { x: 68, y: 78 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 78, y: 30 }, CM: { x: 66, y: 48 }, RM: { x: 70, y: 12 }, LD: { x: 74, y: 70 }, S: { x: 50, y: 50 } } },
+                    { time: 1.8, phase: 1, ball: { x: 72, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 44, y: 45 }, RD: { x: 44, y: 55 }, LM: { x: 72, y: 4 }, S: { x: 76, y: 20 }, CM: { x: 60, y: 50 }, RM: { x: 70, y: 80 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 78, y: 22 }, CM: { x: 65, y: 48 }, RM: { x: 71, y: 10 }, LD: { x: 74, y: 72 }, S: { x: 50, y: 50 } } },
+                    { time: 3.2, phase: 2, ball: { x: 76, y: 20 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 44, y: 45 }, RD: { x: 44, y: 55 }, LM: { x: 72, y: 8 }, S: { x: 76, y: 20 }, CM: { x: 68, y: 50 }, RM: { x: 73, y: 75 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 78, y: 22 }, CM: { x: 67, y: 49 }, RM: { x: 71, y: 12 }, LD: { x: 74, y: 72 }, S: { x: 50, y: 50 } } },
+                    { time: 4.5, phase: 2, ball: { x: 68, y: 50 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 44, y: 45 }, RD: { x: 44, y: 55 }, LM: { x: 72, y: 15 }, S: { x: 76, y: 22 }, CM: { x: 68, y: 50 }, RM: { x: 82, y: 68 } }, red: { GK: { x: 93, y: 50 }, RD: { x: 78, y: 25 }, CM: { x: 71, y: 50 }, RM: { x: 71, y: 15 }, LD: { x: 74, y: 70 }, S: { x: 50, y: 50 } } },
+                    { time: 5.8, phase: 3, ball: { x: 88, y: 48 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 45, y: 45 }, RD: { x: 45, y: 55 }, LM: { x: 72, y: 18 }, S: { x: 82, y: 40 }, CM: { x: 70, y: 50 }, RM: { x: 86, y: 62 } }, red: { GK: { x: 91, y: 49 }, RD: { x: 80, y: 35 }, CM: { x: 71, y: 50 }, RM: { x: 71, y: 20 }, LD: { x: 76, y: 68 }, S: { x: 50, y: 50 } } },
+                    { time: 8.5, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 45, y: 45 }, RD: { x: 45, y: 55 }, LM: { x: 75, y: 20 }, S: { x: 90, y: 48 }, CM: { x: 72, y: 50 }, RM: { x: 88, y: 62 } }, red: { GK: { x: 86, y: 50 }, RD: { x: 84, y: 40 }, CM: { x: 71, y: 50 }, RM: { x: 71, y: 20 }, LD: { x: 78, y: 65 }, S: { x: 50, y: 50 } } }
+                ]
+            },
+            corner_kick: {
+                right: [
+                    // t = 0s: Initial setup (RM at right corner flag x=97, y=96; S near back post x=88, y=38; CM central near penalty spot x=78, y=50; LM outside far post x=82, y=25; RD & LD held back together near midfield x=42, y=58 & x=42, y=42)
+                    { time: 0, phase: 1, ball: { x: 97, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 97, y: 96 }, S: { x: 88, y: 38 }, CM: { x: 78, y: 50 }, LM: { x: 82, y: 25 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 90, y: 62 }, RD: { x: 77, y: 50 }, CM: { x: 87, y: 38 }, LM: { x: 78, y: 70 }, RM: { x: 91, y: 38 }, S: { x: 52, y: 50 } } },
+                    // t = 1.8s: Phase 1: Decoy & Near-Post Attack (S double-moves & makes explosive run to near-post 6y zone x=91, y=60; CM holds central; RD & LD stay anchored behind center circle line)
+                    { time: 1.8, phase: 1, ball: { x: 97, y: 96 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 97, y: 96 }, S: { x: 91, y: 60 }, CM: { x: 78, y: 50 }, LM: { x: 82, y: 28 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 90, y: 62 }, RD: { x: 77, y: 50 }, CM: { x: 90, y: 60 }, LM: { x: 78, y: 70 }, RM: { x: 91, y: 38 }, S: { x: 52, y: 50 } } },
+                    // t = 3.2s: Phase 2: RM delivers driven in-swinger from corner flag to S at near-post x=91, y=60
+                    { time: 3.2, phase: 2, ball: { x: 91, y: 60 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 94, y: 92 }, S: { x: 91, y: 60 }, CM: { x: 80, y: 50 }, LM: { x: 88, y: 32 } }, red: { GK: { x: 94, y: 50 }, LD: { x: 90, y: 62 }, RD: { x: 78, y: 50 }, CM: { x: 90, y: 60 }, LM: { x: 78, y: 70 }, RM: { x: 91, y: 38 }, S: { x: 52, y: 50 } } },
+                    // t = 4.8s: Phase 2: S flicks across goal; LM holds run level with Red RM to stay onside, then crashes back post x=90, y=38
+                    { time: 4.8, phase: 2, ball: { x: 91, y: 38 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 90, y: 88 }, S: { x: 90, y: 55 }, CM: { x: 82, y: 50 }, LM: { x: 90, y: 38 } }, red: { GK: { x: 92, y: 48 }, LD: { x: 88, y: 62 }, RD: { x: 80, y: 50 }, CM: { x: 88, y: 58 }, LM: { x: 76, y: 70 }, RM: { x: 91, y: 38 }, S: { x: 52, y: 50 } } },
+                    // t = 6.2s: Phase 3: LM strikes at back post on goal! RD & LD hold central barrier
+                    { time: 6.2, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 85, y: 80 }, S: { x: 88, y: 52 }, CM: { x: 84, y: 50 }, LM: { x: 92, y: 40 } }, red: { GK: { x: 88, y: 50 }, LD: { x: 86, y: 60 }, RD: { x: 82, y: 50 }, CM: { x: 86, y: 55 }, LM: { x: 74, y: 68 }, RM: { x: 90, y: 40 }, S: { x: 52, y: 50 } } },
+                    // t = 8.5s: Goal celebration & rest defense barrier locked down against counter
+                    { time: 8.5, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, RD: { x: 42, y: 58 }, LD: { x: 42, y: 42 }, RM: { x: 82, y: 75 }, S: { x: 90, y: 50 }, CM: { x: 85, y: 50 }, LM: { x: 94, y: 42 } }, red: { GK: { x: 86, y: 50 }, LD: { x: 85, y: 58 }, RD: { x: 82, y: 50 }, CM: { x: 85, y: 52 }, LM: { x: 72, y: 65 }, RM: { x: 88, y: 42 }, S: { x: 52, y: 50 } } }
+                ],
+                left: [
+                    // t = 0s: Initial setup (LM at left corner flag x=97, y=4; S near back post x=88, y=62; CM central near penalty spot x=78, y=50; RM outside far post x=82, y=75; LD & RD held back together near midfield x=42, y=42 & x=42, y=58)
+                    { time: 0, phase: 1, ball: { x: 97, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 97, y: 4 }, S: { x: 88, y: 62 }, CM: { x: 78, y: 50 }, RM: { x: 82, y: 75 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 90, y: 38 }, LD: { x: 77, y: 50 }, CM: { x: 87, y: 62 }, RM: { x: 78, y: 30 }, LM: { x: 91, y: 62 }, S: { x: 52, y: 50 } } },
+                    // t = 1.8s: Phase 1: Decoy & Near-Post Attack (S double-moves & makes explosive run to near-post 6y zone x=91, y=40; CM holds central; LD & RD stay anchored behind center circle line)
+                    { time: 1.8, phase: 1, ball: { x: 97, y: 4 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 97, y: 4 }, S: { x: 91, y: 40 }, CM: { x: 78, y: 50 }, RM: { x: 82, y: 72 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 90, y: 38 }, LD: { x: 77, y: 50 }, CM: { x: 90, y: 40 }, RM: { x: 78, y: 30 }, LM: { x: 91, y: 62 }, S: { x: 52, y: 50 } } },
+                    // t = 3.2s: Phase 2: LM delivers driven in-swinger from corner flag to S at near-post x=91, y=40
+                    { time: 3.2, phase: 2, ball: { x: 91, y: 40 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 94, y: 8 }, S: { x: 91, y: 40 }, CM: { x: 80, y: 50 }, RM: { x: 88, y: 68 } }, red: { GK: { x: 94, y: 50 }, RD: { x: 90, y: 38 }, LD: { x: 78, y: 50 }, CM: { x: 90, y: 40 }, RM: { x: 78, y: 30 }, LM: { x: 91, y: 62 }, S: { x: 52, y: 50 } } },
+                    // t = 4.8s: Phase 2: S flicks across goal; RM holds run level with Red LM to stay onside, then crashes back post x=90, y=62
+                    { time: 4.8, phase: 2, ball: { x: 91, y: 62 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 90, y: 12 }, S: { x: 90, y: 45 }, CM: { x: 82, y: 50 }, RM: { x: 90, y: 62 } }, red: { GK: { x: 92, y: 52 }, RD: { x: 88, y: 38 }, LD: { x: 80, y: 50 }, CM: { x: 88, y: 42 }, RM: { x: 76, y: 30 }, LM: { x: 91, y: 62 }, S: { x: 52, y: 50 } } },
+                    // t = 6.2s: Phase 3: RM strikes at back post on goal! LD & RD hold central barrier
+                    { time: 6.2, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 85, y: 20 }, S: { x: 88, y: 48 }, CM: { x: 84, y: 50 }, RM: { x: 92, y: 60 } }, red: { GK: { x: 88, y: 50 }, RD: { x: 86, y: 40 }, LD: { x: 82, y: 50 }, CM: { x: 86, y: 45 }, RM: { x: 74, y: 32 }, LM: { x: 90, y: 60 }, S: { x: 52, y: 50 } } },
+                    // t = 8.5s: Goal celebration & rest defense barrier locked down against counter
+                    { time: 8.5, phase: 3, ball: { x: 96, y: 48 }, blue: { GK: { x: 8, y: 50 }, LD: { x: 42, y: 42 }, RD: { x: 42, y: 58 }, LM: { x: 82, y: 25 }, S: { x: 90, y: 50 }, CM: { x: 85, y: 50 }, RM: { x: 94, y: 58 } }, red: { GK: { x: 86, y: 50 }, RD: { x: 85, y: 42 }, LD: { x: 82, y: 50 }, CM: { x: 85, y: 48 }, RM: { x: 72, y: 35 }, LM: { x: 88, y: 58 }, S: { x: 52, y: 50 } } }
                 ]
             }
         };
 
         const canvas = document.getElementById('tacticalCanvas');
-        const ctx = canvas.getContext('2d');
-        let animationFrameId;
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        let lastTimestamp = 0;
 
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-            renderCanvas();
+        // Helper function for linear interpolation
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
         }
-        window.addEventListener('resize', resizeCanvas);
+
+        // Retrieve current position data at animation timestamp
+        function getCurrentFrameData(t) {
+            const frames = playKeyframes[state.currentPlay][state.flankDirection];
+            if (t <= frames[0].time) return frames[0];
+            if (t >= frames[frames.length - 1].time) return frames[frames.length - 1];
+
+            let i = 0;
+            while (i < frames.length - 1 && frames[i + 1].time < t) i++;
+            const f1 = frames[i];
+            const f2 = frames[i + 1];
+            const progress = (t - f1.time) / (f2.time - f1.time);
+
+            const interpolated = {
+                phase: progress < 0.5 ? f1.phase : f2.phase,
+                ball: {
+                    x: lerp(f1.ball.x, f2.ball.x, progress),
+                    y: lerp(f1.ball.y, f2.ball.y, progress)
+                },
+                blue: {},
+                red: {}
+            };
+
+            for (let k in f1.blue) {
+                if (f2.blue[k]) {
+                    interpolated.blue[k] = {
+                        x: lerp(f1.blue[k].x, f2.blue[k].x, progress),
+                        y: lerp(f1.blue[k].y, f2.blue[k].y, progress)
+                    };
+                }
+            }
+
+            for (let k in f1.red) {
+                if (f2.red[k]) {
+                    interpolated.red[k] = {
+                        x: lerp(f1.red[k].x, f2.red[k].x, progress),
+                        y: lerp(f1.red[k].y, f2.red[k].y, progress)
+                    };
+                }
+            }
+
+            return interpolated;
+        }
 
         function drawPitch() {
+            if (!ctx) return;
             const w = canvas.width;
             const h = canvas.height;
-            
-            // Grass
-            ctx.fillStyle = '#246b36';
-            ctx.fillRect(0, 0, w, h);
+
+            // Pitch Background
             ctx.fillStyle = '#1e5e2f';
-            for(let i=0; i<w; i+=w/10) {
-                if(Math.floor(i/(w/10))%2===0) ctx.fillRect(i, 0, w/10, h);
-            }
+            ctx.fillRect(0, 0, w, h);
 
-            // Lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-            ctx.lineWidth = Math.max(2, w/300);
-            
-            // Boundaries
-            ctx.strokeRect(w*0.05, h*0.05, w*0.9, h*0.9);
-            
-            // Halfway
+            // Pitch Line Styling
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.lineWidth = 3;
+
+            // Outer Pitch Boundary
+            const pad = w * 0.02;
+            const pw = w - pad * 2;
+            const ph = h - pad * 2;
+            ctx.strokeRect(pad, pad, pw, ph);
+
+            // Halfway Line & Center Circle
             ctx.beginPath();
-            ctx.moveTo(w/2, h*0.05);
-            ctx.lineTo(w/2, h*0.95);
+            ctx.moveTo(w / 2, pad);
+            ctx.lineTo(w / 2, h - pad);
             ctx.stroke();
 
-            // Center Circle & Dot
             ctx.beginPath();
-            ctx.arc(w/2, h/2, h*0.15, 0, Math.PI*2);
+            ctx.arc(w / 2, h / 2, ph * 0.18, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(w/2, h/2, w/400, 0, Math.PI*2);
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.fill();
 
-            // Penalty Areas
-            ctx.strokeRect(w*0.05, h*0.25, w*0.15, h*0.5);
-            ctx.strokeRect(w*0.8, h*0.25, w*0.15, h*0.5);
+            // U10 Build-Out Line (Amber Dashed Lines)
+            ctx.save();
+            ctx.strokeStyle = '#fbbf24';
+            ctx.setLineDash([8, 8]);
+            const buildoutX = pad + pw * 0.35;
+            ctx.beginPath();
+            ctx.moveTo(buildoutX, pad);
+            ctx.lineTo(buildoutX, h - pad);
+            ctx.stroke();
+            ctx.restore();
+
+            // Goal Areas & Penalty Boxes
+            const boxH = ph * 0.45;
+            const boxW = pw * 0.18;
+            
+            // Left Penalty Box (Blue Goal)
+            ctx.strokeRect(pad, (h - boxH) / 2, boxW, boxH);
+            // Right Penalty Box (Red Goal)
+            ctx.strokeRect(w - pad - boxW, (h - boxH) / 2, boxW, boxH);
+
+            // Corner Arc Lines
+            const cornerR = Math.max(12, w * 0.015);
+            // Top Left Corner Arc
+            ctx.beginPath();
+            ctx.arc(pad, pad, cornerR, 0, Math.PI / 2);
+            ctx.stroke();
+            // Bottom Left Corner Arc
+            ctx.beginPath();
+            ctx.arc(pad, h - pad, cornerR, -Math.PI / 2, 0);
+            ctx.stroke();
+            // Top Right Corner Arc
+            ctx.beginPath();
+            ctx.arc(w - pad, pad, cornerR, Math.PI / 2, Math.PI);
+            ctx.stroke();
+            // Bottom Right Corner Arc
+            ctx.beginPath();
+            ctx.arc(w - pad, h - pad, cornerR, Math.PI, Math.PI * 1.5);
+            ctx.stroke();
 
             // Goals
-            ctx.lineWidth = Math.max(3, w/200);
-            ctx.strokeRect(w*0.02, h*0.35, w*0.03, h*0.3);
-            ctx.strokeRect(w*0.95, h*0.35, w*0.03, h*0.3);
-
-            // Buildout lines (U10 specific)
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)'; // amber-400
-            ctx.setLineDash([10, 10]);
-            ctx.beginPath();
-            ctx.moveTo(w*0.3, h*0.05);
-            ctx.lineTo(w*0.3, h*0.95);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(w*0.7, h*0.05);
-            ctx.lineTo(w*0.7, h*0.95);
-            ctx.stroke();
-            ctx.setLineDash([]);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            const goalH = ph * 0.22;
+            ctx.fillRect(pad - 12, (h - goalH) / 2, 12, goalH);
+            ctx.fillRect(w - pad, (h - goalH) / 2, 12, goalH);
         }
 
-        function drawEntity(xPercent, yPercent, color, label, isBall=false) {
+        function drawPlayer(x, y, label, team) {
+            if (!ctx) return;
             const w = canvas.width;
             const h = canvas.height;
-            const x = (xPercent / 100) * w;
-            const y = (yPercent / 100) * h;
-            const radius = isBall ? Math.max(5, w/100) : Math.max(12, w/60);
+            const px = (x / 100) * w;
+            const py = (y / 100) * h;
+            const radius = Math.max(14, w * 0.018);
 
+            ctx.save();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetY = 4;
+
+            // Player Circle Body
             ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI*2);
-            ctx.fillStyle = isBall ? '#ffffff' : color;
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = team === 'blue' ? '#2563eb' : '#dc2626';
             ctx.fill();
-            
-            if(!isBall) {
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = 'rgba(255,255,255,0.8)';
-                ctx.stroke();
-                
+
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            // Position Label Inside Shirt
+            ctx.restore();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = `800 ${Math.max(10, radius * 0.85)}px Outfit, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, px, py);
+
+            // Player Name Customization Label below shirt
+            const customName = team === 'blue' ? (state.roster.blue[label] || label) : label;
+            if (customName) {
                 ctx.fillStyle = '#ffffff';
-                ctx.font = `bold ${radius}px Outfit, sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(label, x, y + 1);
-            } else {
-                ctx.fillStyle = '#000';
-                ctx.beginPath();
-                ctx.arc(x, y, radius/2.5, 0, Math.PI*2);
-                ctx.fill();
+                ctx.font = `700 ${Math.max(9, radius * 0.65)}px Outfit, sans-serif`;
+                ctx.fillText(customName, px, py + radius + 12);
             }
         }
 
-        function drawDrawings() {
+        function drawBall(x, y) {
+            if (!ctx) return;
             const w = canvas.width;
             const h = canvas.height;
+            const px = (x / 100) * w;
+            const py = (y / 100) * h;
+            const radius = Math.max(7, w * 0.009);
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetY = 3;
+
+            ctx.beginPath();
+            ctx.arc(px, py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#0f172a';
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawFreehandLines() {
+            if (!ctx) return;
+            ctx.save();
             state.drawings.forEach(d => {
                 ctx.beginPath();
-                d.points.forEach((p, i) => {
-                    const px = (p.x / 100) * w;
-                    const py = (p.y / 100) * h;
-                    if(i === 0) ctx.moveTo(px, py);
-                    else ctx.lineTo(px, py);
-                });
-                
-                if (d.type === 'arrow') {
-                    ctx.strokeStyle = '#facc15'; // Yellow for passes
-                    ctx.setLineDash([5, 5]);
-                    ctx.lineWidth = Math.max(3, w/150);
-                } else {
-                    ctx.strokeStyle = '#ef4444'; // Red for freehand
-                    ctx.setLineDash([]);
-                    ctx.lineWidth = Math.max(3, w/150);
-                }
-                
-                ctx.stroke();
-                ctx.setLineDash([]);
+                ctx.strokeStyle = d.color || '#38bdf8';
+                ctx.lineWidth = 3;
+                if (d.type === 'pen' && d.points.length > 0) {
+                    ctx.moveTo((d.points[0].x / 100) * canvas.width, (d.points[0].y / 100) * canvas.height);
+                    for (let p of d.points) {
+                        ctx.lineTo((p.x / 100) * canvas.width, (p.y / 100) * canvas.height);
+                    }
+                    ctx.stroke();
+                } else if (d.type === 'arrow') {
+                    const startX = (d.start.x / 100) * canvas.width;
+                    const startY = (d.start.y / 100) * canvas.height;
+                    const endX = (d.end.x / 100) * canvas.width;
+                    const endY = (d.end.y / 100) * canvas.height;
 
-                if(d.type === 'arrow' && d.points.length > 1) {
-                    const last = d.points[d.points.length-1];
-                    const prev = d.points[d.points.length-2];
-                    const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
-                    const headLen = Math.max(10, w/60);
-                    
-                    const lx = (last.x / 100) * w;
-                    const ly = (last.y / 100) * h;
-                    
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.stroke();
+
+                    // Arrowhead
+                    const angle = Math.atan2(endY - startY, endX - startX);
                     ctx.beginPath();
-                    ctx.moveTo(lx, ly);
-                    ctx.lineTo(lx - headLen * Math.cos(angle - Math.PI/6), ly - headLen * Math.sin(angle - Math.PI/6));
-                    ctx.lineTo(lx - headLen * Math.cos(angle + Math.PI/6), ly - headLen * Math.sin(angle + Math.PI/6));
-                    ctx.lineTo(lx, ly);
-                    ctx.fillStyle = '#facc15';
+                    ctx.fillStyle = d.color || '#38bdf8';
+                    ctx.arc(endX, endY, 6, 0, Math.PI * 2);
                     ctx.fill();
                 }
             });
-            
-            // Draw current drawing
-            if(state.currentDrawing) {
-                ctx.beginPath();
-                state.currentDrawing.points.forEach((p, i) => {
-                    const px = (p.x / 100) * w;
-                    const py = (p.y / 100) * h;
-                    if(i === 0) ctx.moveTo(px, py);
-                    else ctx.lineTo(px, py);
-                });
-                ctx.strokeStyle = state.currentDrawing.type === 'arrow' ? '#facc15' : '#ef4444';
-                if(state.currentDrawing.type === 'arrow') ctx.setLineDash([5, 5]);
-                ctx.lineWidth = Math.max(3, w/150);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
+            ctx.restore();
         }
 
-        function getCurrentPositions() {
-            if (state.mode === 'freehand') {
-                return state.freehandPositions;
-            }
-
-            const kfs = playKeyframes[state.currentPlay][state.flankDirection];
-            let kf1 = kfs[0], kf2 = kfs[kfs.length-1];
-
-            for (let i = 0; i < kfs.length - 1; i++) {
-                if (state.currentTime >= kfs[i].time && state.currentTime <= kfs[i+1].time) {
-                    kf1 = kfs[i];
-                    kf2 = kfs[i+1];
-                    break;
-                }
-            }
-
-            if (kf1 === kf2) return kf1;
-
-            const progress = (state.currentTime - kf1.time) / (kf2.time - kf1.time);
-            
-            const interp = (p1, p2) => ({
-                x: p1.x + (p2.x - p1.x) * progress,
-                y: p1.y + (p2.y - p1.y) * progress
-            });
-
-            const pos = { ball: interp(kf1.ball, kf2.ball), blue: {}, red: {} };
-            
-            Object.keys(kf1.blue).forEach(id => {
-                pos.blue[id] = interp(kf1.blue[id], kf2.blue[id]);
-            });
-            Object.keys(kf1.red).forEach(id => {
-                pos.red[id] = interp(kf1.red[id], kf2.red[id]);
-            });
-
-            return pos;
-        }
-
-        function renderCanvas() {
+        function render() {
+            if (!canvas || !ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawPitch();
-            drawDrawings();
+            drawFreehandLines();
 
-            const positions = getCurrentPositions();
-
-            // Red Team
-            Object.entries(positions.red).forEach(([id, pos]) => {
-                drawEntity(pos.x, pos.y, '#dc2626', id);
-            });
-
-            // Blue Team
-            Object.entries(positions.blue).forEach(([id, pos]) => {
-                drawEntity(pos.x, pos.y, '#2563eb', state.roster.blue[id] || id);
-            });
-
-            // Ball
-            drawEntity(positions.ball.x, positions.ball.y, '#fff', '', true);
-        }
-
-        function getEventPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            // Handle both touch and mouse events uniformly
-            const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
-            
-            return {
-                x: ((clientX - rect.left) / rect.width) * 100,
-                y: ((clientY - rect.top) / rect.height) * 100
-            };
-        }
-
-        function handlePointerDown(e) {
-            if (e.type === 'touchstart') e.preventDefault(); // Prevent scrolling on mobile
-            const pos = getEventPos(e);
-            
-            if (state.mode === 'freehand') {
-                if (state.activeTool === 'select') {
-                    // Check selection
-                    const hitThreshold = 5; // roughly 5% of screen width tolerance
-                    let hit = null;
-                    
-                    ['blue', 'red'].forEach(team => {
-                        Object.entries(state.freehandPositions[team]).forEach(([id, p]) => {
-                            if(Math.hypot(p.x - pos.x, p.y - pos.y) < hitThreshold) hit = {team, id};
-                        });
-                    });
-                    
-                    if (!hit && Math.hypot(state.freehandPositions.ball.x - pos.x, state.freehandPositions.ball.y - pos.y) < hitThreshold) {
-                        hit = {team: 'ball', id: null};
-                    }
-                    
-                    if (hit) state.draggedEntity = hit;
-                } else if (state.activeTool === 'pen' || state.activeTool === 'arrow') {
-                    state.currentDrawing = { type: state.activeTool, points: [pos] };
-                }
+            let frameData;
+            if (state.mode === 'animate') {
+                frameData = getCurrentFrameData(state.currentTime);
             } else {
-                if (state.activeTool === 'pen' || state.activeTool === 'arrow') {
-                    state.currentDrawing = { type: state.activeTool, points: [pos] };
+                frameData = state.freehandPositions;
+            }
+
+            // Draw Blue Team Players
+            for (let pos in frameData.blue) {
+                drawPlayer(frameData.blue[pos].x, frameData.blue[pos].y, pos, 'blue');
+            }
+            // Draw Red Team Players
+            for (let pos in frameData.red) {
+                drawPlayer(frameData.red[pos].x, frameData.red[pos].y, pos, 'red');
+            }
+            // Draw Ball
+            drawBall(frameData.ball.x, frameData.ball.y);
+
+            // Goal Confetti Trigger on Final Phase completion
+            const maxPhase = playMetadata[state.currentPlay].steps.length;
+            if (state.mode === 'animate' && frameData.phase === maxPhase && state.currentTime >= 6.0 && !state.isGoalTriggered) {
+                state.isGoalTriggered = true;
+                playSound('goal');
+                if (window.confetti) {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+                const banner = document.getElementById('goalBanner');
+                if (banner) {
+                    banner.classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
+                    banner.classList.add('opacity-100', 'scale-100');
                 }
             }
         }
 
-        function handlePointerMove(e) {
-            if(state.draggedEntity || state.currentDrawing) {
-                if (e.type === 'touchmove') e.preventDefault(); // Prevent scrolling while interacting
-            }
-            
-            const pos = getEventPos(e);
-            
-            if (state.draggedEntity && state.mode === 'freehand') {
-                const {team, id} = state.draggedEntity;
-                if(team === 'ball') state.freehandPositions.ball = pos;
-                else state.freehandPositions[team][id] = pos;
-                renderCanvas();
-            } else if (state.currentDrawing) {
-                state.currentDrawing.points.push(pos);
-                renderCanvas();
-            }
+        function resizeCanvas() {
+            if (!canvas || !canvas.parentElement) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            render();
         }
+        window.addEventListener('resize', resizeCanvas);
 
-        function handlePointerUp(e) {
-            if (e.type === 'touchend' && e.cancelable) e.preventDefault();
-            state.draggedEntity = null;
-            if (state.currentDrawing) {
-                // Simplify or just add
-                state.drawings.push({...state.currentDrawing});
-                state.currentDrawing = null;
-                renderCanvas();
-            }
-        }
-
-        // Mouse Events
-        canvas.addEventListener('mousedown', handlePointerDown);
-        canvas.addEventListener('mousemove', handlePointerMove);
-        canvas.addEventListener('mouseup', handlePointerUp);
-        canvas.addEventListener('mouseleave', handlePointerUp);
-        
-        // Touch Events for Mobile
-        canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
-        canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-        canvas.addEventListener('touchend', handlePointerUp, { passive: false });
-        canvas.addEventListener('touchcancel', handlePointerUp, { passive: false });
-
-        function updateUI() {
-            const meta = playMetadata[state.currentPlay];
-            
-            // Slider
-            document.getElementById('timelineSlider').value = (state.currentTime / state.totalDuration) * 100;
-            
-            // Time text
-            const m = Math.floor(state.currentTime / 60);
-            const s = Math.floor(state.currentTime % 60);
-            const tm = Math.floor(state.totalDuration / 60);
-            const ts = Math.floor(state.totalDuration % 60);
-            document.getElementById('currentTimeDisplay').innerText = 
-                `0${m}:0${s} / 0${tm}:0${ts}`;
-
-            // Play/Pause button
-            const btnText = document.getElementById('playBtnText');
-            const icon = document.getElementById('playIcon');
-            if (state.isPlaying) {
-                btnText.innerText = "Pause";
-                icon.className = "fa-solid fa-pause";
-            } else {
-                btnText.innerText = state.currentTime >= state.totalDuration ? "Replay" : "Play";
-                icon.className = "fa-solid fa-play";
-            }
-
-            // Phase detection
-            if (state.mode !== 'freehand') {
-                const kfs = playKeyframes[state.currentPlay][state.flankDirection];
-                let activePhase = 1;
-                for (let i = 0; i < kfs.length; i++) {
-                    if (state.currentTime >= kfs[i].time) activePhase = kfs[i].phase;
-                }
-
-                if (state.currentPhase !== activePhase) {
-                    state.currentPhase = activePhase;
-                    
-                    // Sound effects on phase change
-                    if(activePhase === 2) playSound('kick');
-                    if(activePhase === 5) playSound('whistle');
-
-                    document.getElementById('phaseTitle').innerText = meta.descriptions[activePhase-1].title;
-                    document.getElementById('phaseDesc').innerText = meta.descriptions[activePhase-1].desc;
-                    document.getElementById('phaseStepText').innerText = `Step ${activePhase} of 5`;
-
-                    document.querySelectorAll('.phase-node-btn').forEach(btn => {
-                        const ph = parseInt(btn.dataset.phase);
-                        if (ph === activePhase) {
-                            btn.classList.remove('bg-slate-800', 'text-slate-300');
-                            btn.classList.add('bg-amber-500', 'text-slate-950', 'shadow-[0_0_15px_rgba(245,158,11,0.4)]');
-                        } else {
-                            btn.classList.add('bg-slate-800', 'text-slate-300');
-                            btn.classList.remove('bg-amber-500', 'text-slate-950', 'shadow-[0_0_15px_rgba(245,158,11,0.4)]');
-                        }
-                    });
-                }
-
-                // Goal check
-                if (state.currentTime >= state.totalDuration - 0.2 && !state.isGoalTriggered && state.mode !== 'freehand') {
-                    state.isGoalTriggered = true;
-                    playSound('goal');
-                    triggerConfetti();
-                    document.getElementById('goalBanner').classList.remove('opacity-0', 'scale-90', 'pointer-events-none');
-                    document.getElementById('goalBanner').classList.add('opacity-100', 'scale-100');
-                } else if (state.currentTime < state.totalDuration - 0.2) {
-                    state.isGoalTriggered = false;
-                    document.getElementById('goalBanner').classList.add('opacity-0', 'scale-90', 'pointer-events-none');
-                    document.getElementById('goalBanner').classList.remove('opacity-100', 'scale-100');
-                }
-            }
-        }
-
-        function triggerConfetti() {
-            confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#fbbf24', '#f59e0b', '#3b82f6', '#ffffff']
-            });
-        }
-
-        let lastTime = 0;
-        function animate(timestamp) {
-            if (!lastTime) lastTime = timestamp;
-            const delta = (timestamp - lastTime) / 1000;
-            lastTime = timestamp;
+        // Animation Frame Loop
+        function animateLoop(timestamp) {
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
 
             if (state.isPlaying && state.mode === 'animate') {
                 state.currentTime += delta * state.playbackSpeed;
                 if (state.currentTime >= state.totalDuration) {
                     state.currentTime = state.totalDuration;
                     state.isPlaying = false;
+                    updatePlayPauseUI();
                 }
-                renderCanvas();
-                updateUI();
+                updateProgressUI();
             }
 
-            animationFrameId = requestAnimationFrame(animate);
+            render();
+            requestAnimationFrame(animateLoop);
         }
 
-        function loadPlayData() {
+        function updateProgressUI() {
+            const slider = document.getElementById('timelineSlider');
+            const percent = (state.currentTime / state.totalDuration) * 100;
+            slider.value = percent;
+
+            const curSec = state.currentTime.toFixed(1).padStart(4, '0');
+            const totSec = state.totalDuration.toFixed(1).padStart(4, '0');
+            document.getElementById('currentTimeDisplay').innerText = `00:${curSec} / 00:${totSec}`;
+
+            const frame = getCurrentFrameData(state.currentTime);
+            if (frame.phase !== state.currentPhase) {
+                state.currentPhase = frame.phase;
+                updatePhaseGuidance();
+            }
+        }
+
+        function updatePhaseGuidance() {
             const meta = playMetadata[state.currentPlay];
-            const btns = document.querySelectorAll('.phase-node-btn');
-            btns.forEach((btn, i) => {
-                btn.innerText = meta.steps[i];
+            const phaseIdx = Math.min(state.currentPhase - 1, meta.steps.length - 1);
+            const desc = meta.descriptions[phaseIdx];
+
+            document.getElementById('phaseBadge').innerText = `Phase ${state.currentPhase}: ${meta.steps[phaseIdx]}`;
+            document.getElementById('phaseStepText').innerText = `Step ${state.currentPhase} of ${meta.steps.length}`;
+            document.getElementById('phaseTitle').innerText = desc.title;
+            document.getElementById('phaseDesc').innerText = desc.desc;
+
+            // Highlight active phase node button
+            document.querySelectorAll('.phase-node-btn').forEach((btn, idx) => {
+                if (idx + 1 === state.currentPhase) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'border-blue-400');
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-400');
+                    btn.classList.add('bg-slate-800', 'text-slate-300');
+                }
             });
-            
-            // Reset state
-            state.currentTime = 0;
-            state.currentPhase = 0; // force update
-            state.drawings = [];
-            state.isGoalTriggered = false;
-            
-            updateUI();
-            renderCanvas();
         }
 
-        // Wiring up buttons
-        document.getElementById('btnPlayPause').addEventListener('click', () => {
-            if (state.mode === 'freehand') return;
-            if (state.currentTime >= state.totalDuration) {
-                state.currentTime = 0;
-                state.drawings = [];
+        function updatePlayPauseUI() {
+            const btnText = document.getElementById('playBtnText');
+            const icon = document.getElementById('playIcon');
+            if (state.isPlaying) {
+                btnText.innerText = "Pause";
+                icon.className = "fa-solid fa-pause";
+            } else {
+                btnText.innerText = "Start Play";
+                icon.className = "fa-solid fa-play";
             }
-            state.isPlaying = !state.isPlaying;
-            updateUI();
-        });
+        }
 
-        document.getElementById('btnReset').addEventListener('click', () => {
+        function resetPlay() {
             state.currentTime = 0;
             state.isPlaying = false;
-            state.drawings = [];
-            updateUI();
-            renderCanvas();
+            state.isGoalTriggered = false;
+            updatePlayPauseUI();
+            updateProgressUI();
+
+            const banner = document.getElementById('goalBanner');
+            banner.classList.add('opacity-0', 'scale-90', 'pointer-events-none');
+            banner.classList.remove('opacity-100', 'scale-100');
+        }
+
+        function setPlay(playKey) {
+            state.currentPlay = playKey;
+            resetPlay();
+
+            // Update Phase Buttons
+            const container = document.getElementById('phaseButtonsContainer');
+            container.innerHTML = '';
+            const steps = playMetadata[playKey].steps;
+
+            // Dynamically balance grid cols based on step count
+            container.className = `grid grid-cols-${steps.length} gap-1.5 mt-1`;
+
+            steps.forEach((stepText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'phase-node-btn px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 text-center transition border border-slate-700';
+                btn.dataset.phase = idx + 1;
+                btn.innerText = stepText;
+                btn.addEventListener('click', () => {
+                    const targetFrame = playKeyframes[state.currentPlay][state.flankDirection].find(f => f.phase === idx + 1);
+                    if (targetFrame) {
+                        state.currentTime = targetFrame.time;
+                        updateProgressUI();
+                    }
+                });
+                container.appendChild(btn);
+            });
+
+            updatePhaseGuidance();
+        }
+
+        document.getElementById('playSelect').addEventListener('change', (e) => {
+            setPlay(e.target.value);
+        });
+
+        document.getElementById('flankRightBtn').addEventListener('click', () => {
+            state.flankDirection = 'right';
+            document.getElementById('flankRightBtn').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30";
+            document.getElementById('flankLeftBtn').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800";
+            resetPlay();
+        });
+
+        document.getElementById('flankLeftBtn').addEventListener('click', () => {
+            state.flankDirection = 'left';
+            document.getElementById('flankLeftBtn').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 bg-blue-600 text-white shadow-lg shadow-blue-600/30";
+            document.getElementById('flankRightBtn').className = "px-4 py-2 rounded-lg text-xs font-extrabold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800";
+            resetPlay();
+        });
+
+        document.getElementById('btnPlayPause').addEventListener('click', () => {
+            state.isPlaying = !state.isPlaying;
+            if (state.isPlaying) playSound('whistle');
+            updatePlayPauseUI();
+        });
+
+        document.getElementById('btnReset').addEventListener('click', resetPlay);
+
+        document.getElementById('btnNextPhase').addEventListener('click', () => {
+            const maxPhase = playMetadata[state.currentPlay].steps.length;
+            const nextP = Math.min(maxPhase, state.currentPhase + 1);
+            const target = playKeyframes[state.currentPlay][state.flankDirection].find(f => f.phase === nextP);
+            if (target) {
+                state.currentTime = target.time;
+                updateProgressUI();
+            }
         });
 
         document.getElementById('timelineSlider').addEventListener('input', (e) => {
-            state.currentTime = (e.target.value / 100) * state.totalDuration;
-            updateUI();
-            renderCanvas();
-        });
-
-        document.getElementById('playSelect').addEventListener('change', (e) => {
-            state.currentPlay = e.target.value;
-            loadPlayData();
-        });
-
-        ['Right', 'Left'].forEach(dir => {
-            document.getElementById(`flank${dir}Btn`).addEventListener('click', (e) => {
-                state.flankDirection = dir.toLowerCase();
-                
-                document.getElementById('flankRightBtn').className = `flex-1 lg:flex-none px-3 py-2 rounded-lg text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${state.flankDirection==='right' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`;
-                document.getElementById('flankLeftBtn').className = `flex-1 lg:flex-none px-3 py-2 rounded-lg text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${state.flankDirection==='left' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`;
-                
-                loadPlayData();
-            });
+            state.currentTime = (parseFloat(e.target.value) / 100) * state.totalDuration;
+            updateProgressUI();
         });
 
         document.querySelectorAll('.speed-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.speed-btn').forEach(b => {
-                    b.classList.remove('bg-blue-600', 'text-white', 'shadow');
-                    b.classList.add('text-slate-400');
+                    b.className = "speed-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white";
                 });
-                btn.classList.remove('text-slate-400');
-                btn.classList.add('bg-blue-600', 'text-white', 'shadow');
+                btn.className = "speed-btn px-2.5 py-1 rounded-lg bg-blue-600 text-white shadow";
                 state.playbackSpeed = parseFloat(btn.dataset.speed);
             });
         });
@@ -914,101 +967,38 @@
         document.getElementById('btnSoundToggle').addEventListener('click', () => {
             state.soundEnabled = !state.soundEnabled;
             const icon = document.getElementById('soundIcon');
-            icon.className = state.soundEnabled ? 'fa-solid fa-volume-high text-blue-400' : 'fa-solid fa-volume-xmark text-slate-500';
+            icon.className = state.soundEnabled ? "fa-solid fa-volume-high text-blue-400" : "fa-solid fa-volume-xmark text-slate-500";
         });
 
-        // Tools
-        const toolMap = {
-            'toolSelect': 'select',
-            'toolPen': 'pen',
-            'toolArrow': 'arrow'
-        };
-        
-        Object.keys(toolMap).forEach(id => {
-            document.getElementById(id).addEventListener('click', () => {
-                state.activeTool = toolMap[id];
-                Object.keys(toolMap).forEach(btnId => {
-                    document.getElementById(btnId).classList.remove('bg-blue-600', 'text-white', 'shadow');
-                    document.getElementById(btnId).classList.add('text-slate-400');
-                });
-                document.getElementById(id).classList.remove('text-slate-400');
-                document.getElementById(id).classList.add('bg-blue-600', 'text-white', 'shadow');
-            });
-        });
-
-        document.getElementById('btnClearBoard').addEventListener('click', () => {
-            state.drawings = [];
-            renderCanvas();
-        });
-
-        // Mode Toggles
+        // Mode Toggles (Animate vs Freeboard)
         document.getElementById('modeAnimateBtn').addEventListener('click', () => {
             state.mode = 'animate';
-            document.getElementById('modeAnimateBtn').classList.replace('text-slate-400', 'bg-blue-600');
-            document.getElementById('modeAnimateBtn').classList.add('text-white', 'shadow-md');
-            document.getElementById('modeFreehandBtn').classList.replace('bg-blue-600', 'text-slate-400');
-            document.getElementById('modeFreehandBtn').classList.remove('text-white', 'shadow-md');
-            
-            // disable phase buttons logic
-            loadPlayData();
+            document.getElementById('modeAnimateBtn').className = "px-3 py-1 rounded-md text-xs font-bold transition bg-blue-600 text-white shadow-md";
+            document.getElementById('modeFreehandBtn').className = "px-3 py-1 rounded-md text-xs font-bold transition text-slate-400 hover:text-white";
         });
 
         document.getElementById('modeFreehandBtn').addEventListener('click', () => {
             state.mode = 'freehand';
             state.isPlaying = false;
-            document.getElementById('modeFreehandBtn').classList.replace('text-slate-400', 'bg-blue-600');
-            document.getElementById('modeFreehandBtn').classList.add('text-white', 'shadow-md');
-            document.getElementById('modeAnimateBtn').classList.replace('bg-blue-600', 'text-slate-400');
-            document.getElementById('modeAnimateBtn').classList.remove('text-white', 'shadow-md');
-            
-            // Sync freehand to current keyframe pos
-            state.freehandPositions = JSON.parse(JSON.stringify(getCurrentPositions()));
-            updateUI();
-            renderCanvas();
+            updatePlayPauseUI();
+            document.getElementById('modeFreehandBtn').className = "px-3 py-1 rounded-md text-xs font-bold transition bg-blue-600 text-white shadow-md";
+            document.getElementById('modeAnimateBtn').className = "px-3 py-1 rounded-md text-xs font-bold transition text-slate-400 hover:text-white";
         });
 
-        document.getElementById('btnNextPhase').addEventListener('click', () => {
-            const kfs = playKeyframes[state.currentPlay][state.flankDirection];
-            let nextT = state.totalDuration;
-            for(let i=0; i<kfs.length; i++) {
-                if(kfs[i].time > state.currentTime + 0.1) {
-                    nextT = kfs[i].time;
-                    break;
-                }
-            }
-            state.currentTime = nextT;
-            updateUI();
-            renderCanvas();
-        });
-
-        document.querySelectorAll('.phase-node-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetPhase = parseInt(e.target.dataset.phase);
-                const kfs = playKeyframes[state.currentPlay][state.flankDirection];
-                for(let i=0; i<kfs.length; i++) {
-                    if(kfs[i].phase === targetPhase) {
-                        state.currentTime = kfs[i].time;
-                        updateUI();
-                        renderCanvas();
-                        break;
-                    }
-                }
-            });
-        });
-
-        // Roster Modal Logic
         const modal = document.getElementById('playerNameModal');
         document.getElementById('btnPlayerNames').addEventListener('click', () => {
             const container = document.getElementById('blueRosterInputs');
             container.innerHTML = '';
-            Object.entries(state.roster.blue).forEach(([id, name]) => {
-                container.innerHTML += `
-                    <div class="bg-slate-900 p-2 sm:p-3 rounded-xl border border-slate-700">
-                        <label class="text-[10px] sm:text-xs font-bold text-slate-400 mb-1 block">${id} Position</label>
-                        <input type="text" data-id="${id}" value="${name}" class="roster-input w-full bg-slate-950 text-white px-3 py-2 rounded-lg border border-slate-800 focus:border-blue-500 focus:outline-none text-sm">
-                    </div>
+            for (let pos in state.roster.blue) {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-2';
+                div.innerHTML = `
+                    <span class="w-10 text-xs font-black text-blue-400">${pos}:</span>
+                    <input type="text" data-pos="${pos}" value="${state.roster.blue[pos]}" 
+                           class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 w-full focus:outline-none focus:ring-1 focus:ring-blue-500">
                 `;
-            });
+                container.appendChild(div);
+            }
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
         });
@@ -1019,19 +1009,20 @@
         });
 
         document.getElementById('btnSaveRoster').addEventListener('click', () => {
-            document.querySelectorAll('.roster-input').forEach(input => {
-                state.roster.blue[input.dataset.id] = input.value || input.dataset.id;
+            document.querySelectorAll('#blueRosterInputs input').forEach(input => {
+                state.roster.blue[input.dataset.pos] = input.value.trim() || input.dataset.pos;
             });
-            renderCanvas();
             modal.classList.add('opacity-0');
             setTimeout(() => modal.classList.add('hidden'), 300);
+            render();
         });
 
-        // Init
-        resizeCanvas();
-        loadPlayData();
-        requestAnimationFrame(animate);
-
+        // Initialize App State
+        window.onload = function() {
+            resizeCanvas();
+            setPlay('goal_kick');
+            requestAnimationFrame(animateLoop);
+        };
     </script>
 </body>
 </html>
